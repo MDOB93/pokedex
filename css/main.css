@@ -10,12 +10,12 @@ body {
     font-family: Gruppo !important;
 }
 
-nav {
+/* nav {
     position: fixed;
     left: 0;
     bottom: 0;
     width: 100%;
-}
+} */
 
 .navbar {
     padding: 16px 0 16px 0 !important;
