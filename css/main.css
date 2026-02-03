@@ -43,9 +43,28 @@ body {
     2px 2px 0 blue;
 }
 
+.form-control {
+    background-color: #ffffff87 !important;
+}
+
 main {
     display: flex;
     flex-grow: 1;
+}
+
+.infoCard {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 48px;
+}
+
+.card {
+    width: 230px !important;
+}
+
+.card-header {
+    border-bottom: var(--bs-card-border-width) solid #9a0403 !important;
 }
 
 footer {
