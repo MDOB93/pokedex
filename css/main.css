@@ -67,6 +67,17 @@ main {
     border-bottom: var(--bs-card-border-width) solid #9a0403 !important;
 }
 
+.pokemonImgWraper {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-direction: column;
+}
+
+.pokemonImgWraper img {
+    height: 75px;
+}
+
 footer {
     position: fixed;
     left: 0;
