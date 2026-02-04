@@ -41,7 +41,7 @@ function renderPokemon(pokemonURL){
                     <h5 id="pokemonName" class="card-title">${pokemonNameUpCase(allPokemons)}</h5>
                     <div class="pokemonImgWraper">
                         <img id="pokemonImg" src="${allPokemons.sprites.other.dream_world.front_default}" alt="Pokemon Img Front">
-                        <div>${getTagHtml(tagArray)}</div>
+                        <div class="tags">${getTagHtml(tagArray)}</div>
                     </div>
                 </div>
             </div>`
@@ -73,9 +73,13 @@ function getPokemonTags(allPokemons) {
 function getTagHtml(pokemonTagsArray) {
     let typeHtml = "";
     // iterate through pokemonTagsArray and save it in html as <span>
-    pokemonTagsArray.forEach((tag) => {
-        typeHtml += `<span>${tag} </span>`;
+    pokemonTagsArray.forEach((tag, i) => {
+        typeHtml += `<span id="tag_${i}">${tag} </span>`;
     })
 
     return typeHtml;
+};
+
+function getTagBackgroundColor() {
+    
 };
