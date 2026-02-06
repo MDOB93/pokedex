@@ -1,7 +1,13 @@
 @media (min-width: 1441px) {
-    .navbar-brand {
+    .max1440 {
         padding-left: calc((100% - 1440px) / 2);
         padding-right: calc((100% - 1440px) / 2);
+    }
+    .container-fluid {
+        flex-wrap: nowrap !important;
+    }
+    .form-control {
+        width: auto !important;
     }
     main {
         padding-left: calc((100% - 1440px) / 2);

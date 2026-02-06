@@ -2,10 +2,15 @@ function init(){
     fetchData()
 };
 
+let nextPokemonUrl = null;
+
 async function fetchData(){
     const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=25&offset=0');
     const responseAsJson = await response.json();
-
+    nextPokemonUrl = responseAsJson.next;
+    
+    console.log(nextPokemonUrl);
+    
     console.log(responseAsJson);
 
     const pokemonURL = [];
@@ -31,17 +36,19 @@ function renderPokemon(pokemonURL){
         
         console.log(pokemonNameUpCase(allPokemons));
         
-        let tagArray = getPokemonTags(allPokemons)
+        const tagArray = getPokemonTags(allPokemons)
         console.log(tagArray);
+        const mainType = tagArray[0];
+        const typeClasses = `type-${mainType}`;
         
         contentRef.innerHTML += `
-            <div class="card text-bg-dark mb-3" style="max-width: 18rem;">
+            <div class="card ${typeClasses}" style="max-width: 18rem;">
                 <div id="pokemonId" class="card-header">#${allPokemons.id}</div>
                 <div class="card-body">
                     <h5 id="pokemonName" class="card-title">${pokemonNameUpCase(allPokemons)}</h5>
                     <div class="pokemonImgWraper">
                         <img id="pokemonImg" src="${allPokemons.sprites.other.dream_world.front_default}" alt="Pokemon Img Front">
-                        <div class="tags">${getTagHtml(tagArray)}</div>
+                        <div id="tags" class="tags">${getTagHtml(tagArray)}</div>
                     </div>
                 </div>
             </div>`
@@ -73,13 +80,25 @@ function getPokemonTags(allPokemons) {
 function getTagHtml(pokemonTagsArray) {
     let typeHtml = "";
     // iterate through pokemonTagsArray and save it in html as <span>
-    pokemonTagsArray.forEach((tag, i) => {
-        typeHtml += `<span id="tag_${i}">${tag} </span>`;
+    pokemonTagsArray.forEach((tag) => {
+        typeHtml += `<span class="tagFrame type-${tag}">${tag}</span>`;
     })
 
     return typeHtml;
 };
 
-function getTagBackgroundColor() {
+async function loadNextPokemon() {
+    if (!nextPokemonUrl) return;
+    const response = await fetch(nextPokemonUrl);
+    const responseAsJson = await response.json();
     
-};
+    nextPokemonUrl = responseAsJson.next;
+
+    const pokemonURL = [];
+    for (const pokemon of responseAsJson.results) {
+        const urlRef = await fetch(pokemon.url);
+        const urlData = await urlRef.json();
+        pokemonURL.push(urlData);
+    }
+    renderPokemon(pokemonURL)
+}
