@@ -108,63 +108,66 @@ async function loadNextPokemon() {
     renderPokemon(pokemonURL)
 };
 
-function searchPokemon() {
-    // console.log(allPokemon);
-    
-    const inputValue = document.getElementById('searchInput');
-    // console.log(inputValue.value);
-    
-    
-
-    let filteredPokemon = allPokemon.filter((pokemon) => pokemon.name.includes(inputValue.value.toLowerCase()))
-    
-    // console.log(filteredPokemon);
-
-
+async function searchPokemon() {
+    const inputRef = document.getElementById('searchInput');
+    const searchValue = inputRef.value.toLowerCase().trim();
     const contentRef = document.getElementById('content');
+
+    if (searchValue === '') {
+        document.getElementById('nextPokemonBtn').disabled = false;
+        showHideBtn();
+        return;
+    }
+
+    let filteredPokemon = allPokemon.filter((pokemon) =>
+        pokemon.name.includes(searchValue)
+    );
+
+    if (filteredPokemon.length > 0) {
         contentRef.innerHTML = '';
+
         for (const pokemon of filteredPokemon) {
-            const tagArray = getPokemonTags(pokemon)
+            const tagArray = getPokemonTags(pokemon);
             const mainType = tagArray[0];
             const typeClasses = `type-${mainType}`;
-                
+
             contentRef.innerHTML += `
                 <div class="card ${typeClasses}" style="max-width: 18rem;">
-                    <div id="${pokemon.id}" class="card-header">#${pokemon.id}</div>
+                    <div class="card-header">#${pokemon.id}</div>
                     <div class="card-body">
-                        <h5 id="${pokemon.name}" class="card-title">${pokemonNameUpCase(pokemon)}</h5>
+                        <h5 class="card-title">${pokemonNameUpCase(pokemon)}</h5>
                         <div class="pokemonImgWraper">
-                            <img id="pokemonImg-${pokemon.id}" src="${pokemon.sprites.other.dream_world.front_default}" alt="Pokemon Img Front">
-                            <div id="tags" class="tags">${getTagHtml(tagArray)}</div>
+                            <img src="${pokemon.sprites.other.dream_world.front_default}">
+                            <div class="tags">${getTagHtml(tagArray)}</div>
                         </div>
                     </div>
-                </div>`
-            ;
+                </div>
+            `;
         }
-    if (filteredPokemon.length === 0 ) {
-        fetchPokemon(inputValue.value.toLowerCase())
+
+        document.getElementById('nextPokemonBtn').disabled = true;
+        showHideBtn();
+        return;
     }
 
-    document.getElementById('nextPokemonBtn').disabled = true;
-
-    if (inputValue.value === '') {
-        document.getElementById('nextPokemonBtn').disabled = false;
+    try {
+        await fetchPokemon(searchValue);
+        document.getElementById('nextPokemonBtn').disabled = true;
+        showHideBtn();
+    } catch (error) {
+        contentRef.innerHTML = `
+            <div>
+                <h2>No Pokémon found<br>
+                Error 404 ¯\\_(ツ)_/¯</h2>
+            </div>
+        `;
+        document.getElementById('nextPokemonBtn').disabled = true;
+        showHideBtn();
+        return;
     }
 
-    // if (filteredPokemon != inputValue.value) {
-    //     const contentRef = document.getElementById('content');
-    //     contentRef.innerHTML = '';
-    //     contentRef.innerHTML = `
-    //     <div>
-    //         <h2>No Pokemon found <br>
-    //         Error 404 ¯\_(ツ)_/¯ </h2>
-    //     </div>
-    //     `;
-    // }
-
-    inputValue.value = '';
-    showHideBtn ()
-};
+    inputRef.value = '';
+}
 
 async function fetchPokemon(pokemonName) {
     const contentRef = document.getElementById('content');
@@ -203,4 +206,8 @@ function showHideBtn () {
         let backBtn = document.getElementById('backBtn')
         backBtn.classList.add("d-none");
     }
+};
+
+function backHome() {
+    location.reload();
 };
