@@ -3,6 +3,7 @@ function init(){
 };
 
 let nextPokemonUrl = null;
+let allPokemon = []; 
 
 async function fetchData(){
     const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=25&offset=0');
@@ -31,33 +32,37 @@ async function fetchData(){
 function renderPokemon(pokemonURL){
     const contentRef = document.getElementById('content');
 
-    pokemonURL.forEach((allPokemons) => {
-        console.log(`ID: ${allPokemons.id} | Name: ${allPokemons.name} | Img URL: ${allPokemons.sprites.other.dream_world.front_default}`);
+    pokemonURL.forEach((pokemon) => {
+        console.log(`ID: ${pokemon.id} | Name: ${pokemon.name} | Img URL: ${pokemon.sprites.other.dream_world.front_default}`);
         
-        console.log(pokemonNameUpCase(allPokemons));
+        console.log(pokemonNameUpCase(pokemon));
+
+        allPokemon.push(pokemon)
         
-        const tagArray = getPokemonTags(allPokemons)
+        const tagArray = getPokemonTags(pokemon)
         console.log(tagArray);
         const mainType = tagArray[0];
         const typeClasses = `type-${mainType}`;
         
         contentRef.innerHTML += `
             <div class="card ${typeClasses}" style="max-width: 18rem;">
-                <div id="pokemonId" class="card-header">#${allPokemons.id}</div>
+                <div id="${pokemon.id}" class="card-header">#${pokemon.id}</div>
                 <div class="card-body">
-                    <h5 id="pokemonName" class="card-title">${pokemonNameUpCase(allPokemons)}</h5>
+                    <h5 id="${pokemon.name}" class="card-title">${pokemonNameUpCase(pokemon)}</h5>
                     <div class="pokemonImgWraper">
-                        <img id="pokemonImg" src="${allPokemons.sprites.other.dream_world.front_default}" alt="Pokemon Img Front">
+                        <img id="pokemonImg-${pokemon.id}" src="${pokemon.sprites.other.dream_world.front_default}" alt="Pokemon Img Front">
                         <div id="tags" class="tags">${getTagHtml(tagArray)}</div>
                     </div>
                 </div>
             </div>`
         ;
     })
+
+    document.getElementById('nextPokemonBtn').disabled = false;
 };
 
-function pokemonNameUpCase(allPokemons) {
-    const PokemonName = allPokemons.name
+function pokemonNameUpCase(pokemon) {
+    const PokemonName = pokemon.name
     // cahrAt(0) get the first letter of PokemonName than make it toUpperCase()
     // PokemonName.slice(1) get the rest of the word
     const nameUpCase = PokemonName.charAt(0).toUpperCase() + PokemonName.slice(1);
@@ -65,8 +70,8 @@ function pokemonNameUpCase(allPokemons) {
     return nameUpCase;
 };
 
-function getPokemonTags(allPokemons) {
-    let pokemonTypes = allPokemons.types
+function getPokemonTags(pokemon) {
+    let pokemonTypes = pokemon.types
     let pokemonTags = [];
 
     // iterate through pokemonTypes to get type.name of pokemon
@@ -101,4 +106,101 @@ async function loadNextPokemon() {
         pokemonURL.push(urlData);
     }
     renderPokemon(pokemonURL)
-}
+};
+
+function searchPokemon() {
+    // console.log(allPokemon);
+    
+    const inputValue = document.getElementById('searchInput');
+    // console.log(inputValue.value);
+    
+    
+
+    let filteredPokemon = allPokemon.filter((pokemon) => pokemon.name.includes(inputValue.value.toLowerCase()))
+    
+    // console.log(filteredPokemon);
+
+
+    const contentRef = document.getElementById('content');
+        contentRef.innerHTML = '';
+        for (const pokemon of filteredPokemon) {
+            const tagArray = getPokemonTags(pokemon)
+            const mainType = tagArray[0];
+            const typeClasses = `type-${mainType}`;
+                
+            contentRef.innerHTML += `
+                <div class="card ${typeClasses}" style="max-width: 18rem;">
+                    <div id="${pokemon.id}" class="card-header">#${pokemon.id}</div>
+                    <div class="card-body">
+                        <h5 id="${pokemon.name}" class="card-title">${pokemonNameUpCase(pokemon)}</h5>
+                        <div class="pokemonImgWraper">
+                            <img id="pokemonImg-${pokemon.id}" src="${pokemon.sprites.other.dream_world.front_default}" alt="Pokemon Img Front">
+                            <div id="tags" class="tags">${getTagHtml(tagArray)}</div>
+                        </div>
+                    </div>
+                </div>`
+            ;
+        }
+    if (filteredPokemon.length === 0 ) {
+        fetchPokemon(inputValue.value.toLowerCase())
+    }
+
+    document.getElementById('nextPokemonBtn').disabled = true;
+
+    if (inputValue.value === '') {
+        document.getElementById('nextPokemonBtn').disabled = false;
+    }
+
+    // if (filteredPokemon != inputValue.value) {
+    //     const contentRef = document.getElementById('content');
+    //     contentRef.innerHTML = '';
+    //     contentRef.innerHTML = `
+    //     <div>
+    //         <h2>No Pokemon found <br>
+    //         Error 404 ¯\_(ツ)_/¯ </h2>
+    //     </div>
+    //     `;
+    // }
+
+    inputValue.value = '';
+    showHideBtn ()
+};
+
+async function fetchPokemon(pokemonName) {
+    const contentRef = document.getElementById('content');
+    const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonName}`);
+    const responseAsJson = await response.json();
+
+    // console.log(responseAsJson);
+
+    const tagArray = getPokemonTags(responseAsJson)
+    const mainType = tagArray[0];
+    const typeClasses = `type-${mainType}`;
+
+    contentRef.innerHTML = '';
+                
+    contentRef.innerHTML += `
+        <div class="card ${typeClasses}" style="max-width: 18rem;">
+            <div id="${responseAsJson.id}" class="card-header">#${responseAsJson.id}</div>
+            <div class="card-body">
+                <h5 id="${responseAsJson.name}" class="card-title">${pokemonNameUpCase(responseAsJson)}</h5>
+                <div class="pokemonImgWraper">
+                    <img id="pokemonImg-${responseAsJson.id}" src="${responseAsJson.sprites.other.dream_world.front_default}" alt="Pokemon Img Front">
+                    <div id="tags" class="tags">${getTagHtml(tagArray)}</div>
+                </div>
+            </div>
+        </div>`
+    ;
+    showHideBtn ()
+};
+
+function showHideBtn () {
+    let nextBtn = document.getElementById('nextPokemonBtn').disabled
+    if (nextBtn == true) {
+        let backBtn = document.getElementById('backBtn')
+        backBtn.classList.remove("d-none");
+    }else {
+        let backBtn = document.getElementById('backBtn')
+        backBtn.classList.add("d-none");
+    }
+};

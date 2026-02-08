@@ -89,7 +89,7 @@ main {
 
 .card:hover {
     transition-duration: 0.2s;
-    transform: scale(1.1) rotate(10deg);
+    transform: scale(1.1) rotate(5deg);
     cursor: pointer;
 }
 
@@ -136,6 +136,10 @@ main {
     --bs-btn-disabled-color: #ee534f !important;
     --bs-btn-disabled-border-color: #ee534f !important;
     color: #fff !important;
+}
+
+.d-none {
+    display: none;
 }
 
 footer {
