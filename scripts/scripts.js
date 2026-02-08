@@ -3,9 +3,11 @@ function init(){
 };
 
 let nextPokemonUrl = null;
-let allPokemon = []; 
+let allPokemon = [];
+let loaderTimer = null;
 
 async function fetchData(){
+    showLoadingScreen()
     const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=25&offset=0');
     const responseAsJson = await response.json();
     nextPokemonUrl = responseAsJson.next;
@@ -25,7 +27,6 @@ async function fetchData(){
     }
 
     console.log(pokemonURL);
-
     renderPokemon(pokemonURL)
 };
 
@@ -93,6 +94,7 @@ function getTagHtml(pokemonTagsArray) {
 };
 
 async function loadNextPokemon() {
+    showLoadingScreen()
     if (!nextPokemonUrl) return;
     const response = await fetch(nextPokemonUrl);
     const responseAsJson = await response.json();
@@ -100,6 +102,7 @@ async function loadNextPokemon() {
     nextPokemonUrl = responseAsJson.next;
 
     const pokemonURL = [];
+
     for (const pokemon of responseAsJson.results) {
         const urlRef = await fetch(pokemon.url);
         const urlData = await urlRef.json();
@@ -122,6 +125,8 @@ async function searchPokemon() {
     let filteredPokemon = allPokemon.filter((pokemon) =>
         pokemon.name.includes(searchValue)
     );
+
+    showLoadingScreen()
 
     if (filteredPokemon.length > 0) {
         contentRef.innerHTML = '';
@@ -197,7 +202,7 @@ async function fetchPokemon(pokemonName) {
     showHideBtn ()
 };
 
-function showHideBtn () {
+function showHideBtn() {
     let nextBtn = document.getElementById('nextPokemonBtn').disabled
     if (nextBtn == true) {
         let backBtn = document.getElementById('backBtn')
@@ -211,3 +216,17 @@ function showHideBtn () {
 function backHome() {
     location.reload();
 };
+
+function showLoadingScreen() {
+    const loader = document.getElementById('loader');
+
+    loader.classList.remove('d-none');
+    if (loaderTimer) {
+        clearTimeout(loaderTimer);
+    }
+
+    loaderTimer = setTimeout(() => {
+        loader.classList.add('d-none');
+        loaderTimer = null;
+    }, 5000);
+}

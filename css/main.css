@@ -28,6 +28,34 @@ body {
     overflow: hidden;
 }
 
+.loaderBg {
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    background: #161618;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 16px;
+    color: #fff;
+    z-index: 2;
+}
+
+.loader {
+  border: 32px solid #f3f3f3;
+  border-top: 32px solid #ef403a;
+  border-radius: 50%;
+  width: 240px;
+  height: 240px;
+  animation: spin 2.5s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 header {
     position: fixed;
     left: 0;
