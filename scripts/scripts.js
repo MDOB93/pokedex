@@ -7,27 +7,31 @@ let allPokemon = [];
 let loaderTimer = null;
 
 async function fetchData(){
-    showLoadingScreen()
-    const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=25&offset=0');
-    const responseAsJson = await response.json();
-    nextPokemonUrl = responseAsJson.next;
-    
-    console.log(nextPokemonUrl);
-    
-    console.log(responseAsJson);
+    showLoadingScreen();
+    try {
+        const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=25&offset=0');
+        const responseAsJson = await response.json();
+        nextPokemonUrl = responseAsJson.next;
+        
+        // console.log(nextPokemonUrl);
+        
+        // console.log(responseAsJson);
 
-    const pokemonURL = [];
+        const pokemonURL = [];
 
-    // aweit only in async funtions (const pokemon = responseAsJson.results) | if you want to read the files in sequence, you cannot use forEach indeed. Just use a modern for … of loop instead, in which await will work as expected.
-    // https://stackoverflow.com/questions/37576685/using-async-await-with-a-foreach-loop
-    for (const pokemon of responseAsJson.results) {
-        const urlRef = await fetch(pokemon.url);
-        const urlData = await urlRef.json();
-        pokemonURL.push(urlData);
+        // aweit only in async funtions (const pokemon = responseAsJson.results) | if you want to read the files in sequence, you cannot use forEach indeed. Just use a modern for … of loop instead, in which await will work as expected.
+        // https://stackoverflow.com/questions/37576685/using-async-await-with-a-foreach-loop
+        for (const pokemon of responseAsJson.results) {
+            const urlRef = await fetch(pokemon.url);
+            const urlData = await urlRef.json();
+            pokemonURL.push(urlData);
+        }
+
+        // console.log(pokemonURL);
+        renderPokemon(pokemonURL)
+    } finally {
+        hideLoadingScreen();
     }
-
-    console.log(pokemonURL);
-    renderPokemon(pokemonURL)
 };
 
 function renderPokemon(pokemonURL){
@@ -94,85 +98,95 @@ function getTagHtml(pokemonTagsArray) {
 };
 
 async function loadNextPokemon() {
-    showLoadingScreen()
-    if (!nextPokemonUrl) return;
-    const response = await fetch(nextPokemonUrl);
-    const responseAsJson = await response.json();
     
-    nextPokemonUrl = responseAsJson.next;
+    if (!nextPokemonUrl) return;
 
-    const pokemonURL = [];
+    showLoadingScreen();
 
-    for (const pokemon of responseAsJson.results) {
-        const urlRef = await fetch(pokemon.url);
-        const urlData = await urlRef.json();
-        pokemonURL.push(urlData);
+    try {
+        const response = await fetch(nextPokemonUrl);
+        const responseAsJson = await response.json();
+        
+        nextPokemonUrl = responseAsJson.next;
+
+        const pokemonURL = [];
+
+        for (const pokemon of responseAsJson.results) {
+            const urlRef = await fetch(pokemon.url);
+            const urlData = await urlRef.json();
+            pokemonURL.push(urlData);
+        }
+        renderPokemon(pokemonURL)
+    } finally {
+        hideLoadingScreen();
     }
-    renderPokemon(pokemonURL)
 };
 
 async function searchPokemon() {
-    const inputRef = document.getElementById('searchInput');
-    const searchValue = inputRef.value.toLowerCase().trim();
-    const contentRef = document.getElementById('content');
+    showLoadingScreen();
+    try {
+        const inputRef = document.getElementById('searchInput');
+        const searchValue = inputRef.value.toLowerCase().trim();
+        const contentRef = document.getElementById('content');
 
-    if (searchValue === '') {
-        document.getElementById('nextPokemonBtn').disabled = false;
-        showHideBtn();
-        return;
-    }
-
-    let filteredPokemon = allPokemon.filter((pokemon) =>
-        pokemon.name.includes(searchValue)
-    );
-
-    showLoadingScreen()
-
-    if (filteredPokemon.length > 0) {
-        contentRef.innerHTML = '';
-
-        for (const pokemon of filteredPokemon) {
-            const tagArray = getPokemonTags(pokemon);
-            const mainType = tagArray[0];
-            const typeClasses = `type-${mainType}`;
-
-            contentRef.innerHTML += `
-                <div class="card ${typeClasses}" style="max-width: 18rem;">
-                    <div class="card-header">#${pokemon.id}</div>
-                    <div class="card-body">
-                        <h5 class="card-title">${pokemonNameUpCase(pokemon)}</h5>
-                        <div class="pokemonImgWraper">
-                            <img src="${pokemon.sprites.other.dream_world.front_default}">
-                            <div class="tags">${getTagHtml(tagArray)}</div>
-                        </div>
-                    </div>
-                </div>
-            `;
+        if (searchValue === '' || searchValue.length < 3) {
+            document.getElementById('nextPokemonBtn').disabled = false;
+            showHideBtn();
+            return;
         }
 
-        document.getElementById('nextPokemonBtn').disabled = true;
-        showHideBtn();
-        return;
-    }
+        let filteredPokemon = allPokemon.filter((pokemon) =>
+            pokemon.name.includes(searchValue)
+        );
 
-    try {
-        await fetchPokemon(searchValue);
-        document.getElementById('nextPokemonBtn').disabled = true;
-        showHideBtn();
-    } catch (error) {
-        contentRef.innerHTML = `
-            <div>
-                <h2>No Pokémon found<br>
-                Error 404 ¯\\_(ツ)_/¯</h2>
-            </div>
-        `;
-        document.getElementById('nextPokemonBtn').disabled = true;
-        showHideBtn();
-        return;
+        if (filteredPokemon.length >= 3) {
+            contentRef.innerHTML = '';
+
+            for (const pokemon of filteredPokemon) {
+                const tagArray = getPokemonTags(pokemon);
+                const mainType = tagArray[0];
+                const typeClasses = `type-${mainType}`;
+
+                contentRef.innerHTML += `
+                    <div class="card ${typeClasses}" style="max-width: 18rem;">
+                        <div class="card-header">#${pokemon.id}</div>
+                        <div class="card-body">
+                            <h5 class="card-title">${pokemonNameUpCase(pokemon)}</h5>
+                            <div class="pokemonImgWraper">
+                                <img src="${pokemon.sprites.other.dream_world.front_default}">
+                                <div class="tags">${getTagHtml(tagArray)}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('nextPokemonBtn').disabled = true;
+            showHideBtn();
+            return;
+        }
+
+        try {
+            await fetchPokemon(searchValue);
+            document.getElementById('nextPokemonBtn').disabled = true;
+            showHideBtn();
+        } catch (error) {
+            contentRef.innerHTML = `
+                <div>
+                    <h2>No Pokémon found<br>
+                    Error 404 ¯\\_(ツ)_/¯</h2>
+                </div>
+            `;
+            document.getElementById('nextPokemonBtn').disabled = true;
+            showHideBtn();
+            return;
+        }
+    } finally {
+        hideLoadingScreen();
     }
 
     inputRef.value = '';
-}
+};
 
 async function fetchPokemon(pokemonName) {
     const contentRef = document.getElementById('content');
@@ -218,15 +232,9 @@ function backHome() {
 };
 
 function showLoadingScreen() {
-    const loader = document.getElementById('loader');
+    document.getElementById('loader').classList.remove('d-none');
+};
 
-    loader.classList.remove('d-none');
-    if (loaderTimer) {
-        clearTimeout(loaderTimer);
-    }
-
-    loaderTimer = setTimeout(() => {
-        loader.classList.add('d-none');
-        loaderTimer = null;
-    }, 5000);
-}
+function hideLoadingScreen() {
+    document.getElementById('loader').classList.add('d-none');
+};
