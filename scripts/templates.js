@@ -14,7 +14,7 @@ function pokemonCardTemplate(pokemon, typeClasses, tagArray) {
 
 function pokemonFetchTemplate(responseAsJson, typeClasses, tagArray) {
     return `
-    <div class="card ${typeClasses}" style="max-width: 18rem;">
+    <div class="card ${typeClasses}" onclick="openDialog(${responseAsJson.id})"style="max-width: 18rem;">
         <div id="${responseAsJson.id}" class="card-header">#${responseAsJson.id}</div>
         <div class="card-body">
             <h5 id="${responseAsJson.name}" class="card-title">${pokemonNameUpCase(responseAsJson)}</h5>

@@ -110,6 +110,10 @@ main {
     margin-bottom: 16px;
 }
 
+.infoCard h2 {
+    color: #fff;
+}
+
 .card {
     width: 230px !important;
     color: #fff !important;
@@ -197,7 +201,7 @@ dialog {
     border-radius: 40px;
     padding: 32px 16px 32px 16px;
     background: #161618;
-    height: 65%;
+    height: 562px;
     width: 320px;
     justify-content: center;
     align-items: center;
@@ -217,7 +221,7 @@ dialog[open] {
 
 dialog main {
     position: fixed;
-    padding: 16px;
+    padding: 16px 24px;
     top: 82px;
     height: auto;
     overflow-y: hidden;

@@ -1,10 +1,13 @@
 function init(){
     fetchData()
+    initDialogNavigation()
 };
 
 let nextPokemonUrl = null;
 let allPokemon = [];
 let loaderTimer = null;
+let currentRenderedPokemon = [];
+let currentPokemonIndex = 0;
 
 const dialogRef = document.getElementById('myDialog');
 
@@ -37,12 +40,14 @@ async function fetchData(){
 };
 
 function openDialog(pokemonId) {
-    const pokemon = allPokemon.find(p => p.id === pokemonId);
+    currentPokemonIndex = currentRenderedPokemon.findIndex(
+        p => p.id === pokemonId
+    );
 
-    if (!pokemon) return;
+    if (currentPokemonIndex === -1) return;
 
     dialogRef.showModal();
-    renderDialog(pokemon);
+    renderDialog(currentRenderedPokemon[currentPokemonIndex]);
 };
 
 
@@ -78,6 +83,8 @@ function renderDialog(pokemon) {
 
 function renderPokemon(pokemonURL){
     const contentRef = document.getElementById('content');
+
+    currentRenderedPokemon.push(...pokemonURL);// ... Spread-Operator | It „spreads“ an array – turns many values into individual elements.
 
     pokemonURL.forEach((pokemon) => {
         // console.log(`ID: ${pokemon.id} | Name: ${pokemon.name} | Img URL: ${pokemon.sprites.other.dream_world.front_default}`);
@@ -184,6 +191,9 @@ async function searchPokemon() {
         if (filteredPokemon.length >= 3) {
             contentRef.innerHTML = '';
 
+            currentRenderedPokemon = filteredPokemon;
+            currentPokemonIndex = 0;
+
             for (const pokemon of filteredPokemon) {
                 const tagArray = getPokemonTags(pokemon);
                 const mainType = tagArray[0];
@@ -207,11 +217,10 @@ async function searchPokemon() {
             showHideBtn();
             return;
         }
+        inputRef.value = '';
     } finally {
         hideLoadingScreen();
     }
-
-    inputRef.value = '';
 };
 
 async function fetchPokemon(pokemonName) {
@@ -219,13 +228,16 @@ async function fetchPokemon(pokemonName) {
     const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonName}`);
     const responseAsJson = await response.json();
 
-    // console.log(responseAsJson);
+    console.log(responseAsJson);
 
     const tagArray = getPokemonTags(responseAsJson)
     const mainType = tagArray[0];
     const typeClasses = `type-${mainType}`;
 
     contentRef.innerHTML = '';
+
+    currentRenderedPokemon = [responseAsJson];
+    currentPokemonIndex = 0;
                 
     contentRef.innerHTML += pokemonFetchTemplate(responseAsJson, typeClasses, tagArray);
 
@@ -253,4 +265,29 @@ function showLoadingScreen() {
 
 function hideLoadingScreen() {
     document.getElementById('loader').classList.add('d-none');
+};
+
+function initDialogNavigation() {
+    document.getElementById('backBtnImg').onclick = showPrevPokemon;
+    document.getElementById('forBtnIMG').onclick = showNextPokemon;
+};
+
+function showNextPokemon() {
+    currentPokemonIndex++;
+
+    if (currentPokemonIndex >= currentRenderedPokemon.length) {
+        currentPokemonIndex = 0;
+    }
+
+    renderDialog(currentRenderedPokemon[currentPokemonIndex]);
+};
+
+function showPrevPokemon() {
+    currentPokemonIndex--;
+
+    if (currentPokemonIndex < 0) {
+        currentPokemonIndex = currentRenderedPokemon.length - 1;
+    }
+
+    renderDialog(currentRenderedPokemon[currentPokemonIndex]);
 };
