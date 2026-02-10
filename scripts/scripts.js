@@ -17,13 +17,7 @@ async function fetchData(){
         const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=25&offset=0');
         const responseAsJson = await response.json();
         nextPokemonUrl = responseAsJson.next;
-        
-        // console.log(nextPokemonUrl);
-        
-        // console.log(responseAsJson);
-
         const pokemonURL = [];
-
         // aweit only in async funtions (const pokemon = responseAsJson.results) | if you want to read the files in sequence, you cannot use forEach indeed. Just use a modern for … of loop instead, in which await will work as expected.
         // https://stackoverflow.com/questions/37576685/using-async-await-with-a-foreach-loop
         for (const pokemon of responseAsJson.results) {
@@ -31,8 +25,6 @@ async function fetchData(){
             const urlData = await urlRef.json();
             pokemonURL.push(urlData);
         }
-
-        // console.log(pokemonURL);
         renderPokemon(pokemonURL)
     } finally {
         hideLoadingScreen();
@@ -43,9 +35,7 @@ function openDialog(pokemonId) {
     currentPokemonIndex = currentRenderedPokemon.findIndex(
         p => p.id === pokemonId
     );
-
     if (currentPokemonIndex === -1) return;
-
     dialogRef.showModal();
     renderDialog(currentRenderedPokemon[currentPokemonIndex]);
 };
@@ -58,13 +48,8 @@ function closeDialog() {
 function renderDialog(pokemon) {
     const tagArray = getPokemonTags(pokemon);
     const statsArray = getPokemonStats(pokemon);
-
-    // console.log(tagArray);
-    // console.log(statsArray);
-
     const mainType = tagArray[0];
     const typeClasses = `type-${mainType}`;
-
     const hp = `${statsArray[0]}`;
     const attack = `${statsArray[1]}`;
     const defense = `${statsArray[2]}`;
@@ -73,9 +58,7 @@ function renderDialog(pokemon) {
     const speed = `${statsArray[5]}`;
 
     document.getElementById('myDialog').classList = typeClasses
-
     document.getElementById('dialogTitle').innerHTML = `#${pokemon.id} ${pokemonNameUpCase(pokemon)}`;
-
     document.getElementById('imgDialog').setAttribute('src', `${pokemon.sprites.other.dream_world.front_default}`);
     document.getElementById('pokeDescript').innerHTML = dialogTbleTemplate(hp, attack, defense, specialAttack, specialDefense, speed, tagArray);
 };
@@ -87,20 +70,12 @@ function renderPokemon(pokemonURL){
     currentRenderedPokemon.push(...pokemonURL);// ... Spread-Operator | It „spreads“ an array – turns many values into individual elements.
 
     pokemonURL.forEach((pokemon) => {
-        // console.log(`ID: ${pokemon.id} | Name: ${pokemon.name} | Img URL: ${pokemon.sprites.other.dream_world.front_default}`);
-        
-        // console.log(pokemonNameUpCase(pokemon));
-
-        allPokemon.push(pokemon)
-        
+        allPokemon.push(pokemon)       
         const tagArray = getPokemonTags(pokemon)
-        // console.log(tagArray);
         const mainType = tagArray[0];
-        const typeClasses = `type-${mainType}`;
-        
+        const typeClasses = `type-${mainType}`;        
         contentRef.innerHTML += pokemonCardTemplate(pokemon, typeClasses, tagArray);
     })
-
     document.getElementById('nextPokemonBtn').disabled = false;
 };
 
@@ -109,30 +84,25 @@ function pokemonNameUpCase(pokemon) {
     // cahrAt(0) get the first letter of PokemonName than make it toUpperCase()
     // PokemonName.slice(1) get the rest of the word
     const nameUpCase = PokemonName.charAt(0).toUpperCase() + PokemonName.slice(1);
-    
     return nameUpCase;
 };
 
 function getPokemonTags(pokemon) {
     let pokemonTypes = pokemon.types;
     let pokemonTags = [];
-
     // iterate through pokemonTypes to get type.name of pokemon
     pokemonTypes.forEach ((pokemonTagsArray) => {
         pokemonTags.push(pokemonTagsArray.type.name)
     })
-
     return pokemonTags;
 };
 
 function getPokemonStats(pokemon) {
     let pokemonStats = pokemon.stats;
     let pokemonStat = [];
-
     pokemonStats.forEach ((pokemonStatsArray) => {
         pokemonStat.push(pokemonStatsArray.base_stat)
     })
-
     return pokemonStat;
 };
 
@@ -142,24 +112,18 @@ function getTagHtml(pokemonTagsArray) {
     pokemonTagsArray.forEach((tag) => {
         typeHtml += `<span class="tagFrame type-${tag}">${tag}</span>`;
     })
-
     return typeHtml;
 };
 
 async function loadNextPokemon() {
     
     if (!nextPokemonUrl) return;
-
     showLoadingScreen();
-
     try {
         const response = await fetch(nextPokemonUrl);
-        const responseAsJson = await response.json();
-        
+        const responseAsJson = await response.json();       
         nextPokemonUrl = responseAsJson.next;
-
         const pokemonURL = [];
-
         for (const pokemon of responseAsJson.results) {
             const urlRef = await fetch(pokemon.url);
             const urlData = await urlRef.json();
