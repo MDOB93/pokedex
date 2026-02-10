@@ -15,9 +15,9 @@ async function fetchData(){
         const responseAsJson = await response.json();
         nextPokemonUrl = responseAsJson.next;
         
-        console.log(nextPokemonUrl);
+        // console.log(nextPokemonUrl);
         
-        console.log(responseAsJson);
+        // console.log(responseAsJson);
 
         const pokemonURL = [];
 
@@ -29,7 +29,7 @@ async function fetchData(){
             pokemonURL.push(urlData);
         }
 
-        console.log(pokemonURL);
+        // console.log(pokemonURL);
         renderPokemon(pokemonURL)
     } finally {
         hideLoadingScreen();
@@ -54,8 +54,8 @@ function renderDialog(pokemon) {
     const tagArray = getPokemonTags(pokemon);
     const statsArray = getPokemonStats(pokemon);
 
-    console.log(tagArray);
-    console.log(statsArray);
+    // console.log(tagArray);
+    // console.log(statsArray);
 
     const mainType = tagArray[0];
     const typeClasses = `type-${mainType}`;
@@ -72,34 +72,7 @@ function renderDialog(pokemon) {
     document.getElementById('dialogTitle').innerHTML = `#${pokemon.id} ${pokemonNameUpCase(pokemon)}`;
 
     document.getElementById('imgDialog').setAttribute('src', `${pokemon.sprites.other.dream_world.front_default}`);
-    document.getElementById('pokeDescript').innerHTML = `
-    <table>
-        <tr>
-            <th>Hp:</th>
-            <td>${hp}</td>
-        </tr>
-        <tr>
-            <th>Attack:</th>
-            <td>${attack}</td>
-        </tr>
-        <tr>
-            <th>Defense:</th>
-            <td>${defense}</td>
-        </tr>
-        <tr>
-            <th>Special-Attack:</th>
-            <td>${specialAttack}</td>
-        </tr>
-        <tr>
-            <th>Special-Defense:</th>
-            <td>${specialDefense}</td>
-        </tr>
-        <tr>
-            <th>Speed:</th>
-            <td>${speed}</td>
-        </tr>
-    </table>
-    <div id="dialogTags" class="tags">${getTagHtml(tagArray)}</div>`
+    document.getElementById('pokeDescript').innerHTML = dialogTbleTemplate(hp, attack, defense, specialAttack, specialDefense, speed, tagArray);
 };
 
 
@@ -107,29 +80,18 @@ function renderPokemon(pokemonURL){
     const contentRef = document.getElementById('content');
 
     pokemonURL.forEach((pokemon) => {
-        console.log(`ID: ${pokemon.id} | Name: ${pokemon.name} | Img URL: ${pokemon.sprites.other.dream_world.front_default}`);
+        // console.log(`ID: ${pokemon.id} | Name: ${pokemon.name} | Img URL: ${pokemon.sprites.other.dream_world.front_default}`);
         
-        console.log(pokemonNameUpCase(pokemon));
+        // console.log(pokemonNameUpCase(pokemon));
 
         allPokemon.push(pokemon)
         
         const tagArray = getPokemonTags(pokemon)
-        console.log(tagArray);
+        // console.log(tagArray);
         const mainType = tagArray[0];
         const typeClasses = `type-${mainType}`;
         
-        contentRef.innerHTML += `
-            <div id="card-${pokemon.id}" class="card ${typeClasses}" onclick="openDialog(${pokemon.id})"style="max-width: 18rem;">
-                <div class="card-header">#${pokemon.id}</div>
-                <div class="card-body">
-                    <h5 id="${pokemon.name}" class="card-title">${pokemonNameUpCase(pokemon)}</h5>
-                    <div class="pokemonImgWraper">
-                        <img id="pokemonImg-${pokemon.id}" src="${pokemon.sprites.other.dream_world.front_default}" alt="Pokemon Img Front">
-                        <div id="tags" class="tags">${getTagHtml(tagArray)}</div>
-                    </div>
-                </div>
-            </div>`
-        ;
+        contentRef.innerHTML += pokemonCardTemplate(pokemon, typeClasses, tagArray);
     })
 
     document.getElementById('nextPokemonBtn').disabled = false;
@@ -227,18 +189,7 @@ async function searchPokemon() {
                 const mainType = tagArray[0];
                 const typeClasses = `type-${mainType}`;
 
-                contentRef.innerHTML += `
-                    <div class="card ${typeClasses}" style="max-width: 18rem;">
-                        <div class="card-header">#${pokemon.id}</div>
-                        <div class="card-body">
-                            <h5 class="card-title">${pokemonNameUpCase(pokemon)}</h5>
-                            <div class="pokemonImgWraper">
-                                <img src="${pokemon.sprites.other.dream_world.front_default}">
-                                <div class="tags">${getTagHtml(tagArray)}</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
+                contentRef.innerHTML += pokemonCardTemplate(pokemon, typeClasses, tagArray);
             }
 
             document.getElementById('nextPokemonBtn').disabled = true;
@@ -251,12 +202,7 @@ async function searchPokemon() {
             document.getElementById('nextPokemonBtn').disabled = true;
             showHideBtn();
         } catch (error) {
-            contentRef.innerHTML = `
-                <div>
-                    <h2>No Pokémon found<br>
-                    Error 404 ¯\\_(ツ)_/¯</h2>
-                </div>
-            `;
+            contentRef.innerHTML = errorTemplate();
             document.getElementById('nextPokemonBtn').disabled = true;
             showHideBtn();
             return;
@@ -281,18 +227,8 @@ async function fetchPokemon(pokemonName) {
 
     contentRef.innerHTML = '';
                 
-    contentRef.innerHTML += `
-        <div class="card ${typeClasses}" style="max-width: 18rem;">
-            <div id="${responseAsJson.id}" class="card-header">#${responseAsJson.id}</div>
-            <div class="card-body">
-                <h5 id="${responseAsJson.name}" class="card-title">${pokemonNameUpCase(responseAsJson)}</h5>
-                <div class="pokemonImgWraper">
-                    <img id="pokemonImg-${responseAsJson.id}" src="${responseAsJson.sprites.other.dream_world.front_default}" alt="Pokemon Img Front">
-                    <div id="tags" class="tags">${getTagHtml(tagArray)}</div>
-                </div>
-            </div>
-        </div>`
-    ;
+    contentRef.innerHTML += pokemonFetchTemplate(responseAsJson, typeClasses, tagArray);
+
     showHideBtn ()
 };
 
