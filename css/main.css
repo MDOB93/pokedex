@@ -197,7 +197,7 @@ dialog {
     border-radius: 40px;
     padding: 32px 16px 32px 16px;
     background: #161618;
-    height: 75%;
+    height: 52%;
     width: 320px;
     justify-content: center;
     align-items: center;
@@ -205,53 +205,75 @@ dialog {
     color: #fff;
     outline: none;
 }
+
 dialog::backdrop {
   backdrop-filter: blur(5px);
   background-color: rgba(0, 0, 0, 0.5);
 }
+
 dialog[open] {
     display: flex;
 }
+
 dialog main {
     padding: 0;
     top: 60px;
     height: auto;
     overflow-y: hidden;
 }
+
 #myDialog header {
     background: none;
     padding: 0;
 }
+
 #myDialog header h2 {
     padding: 16px;
 }
+
 #myDialog header img {
     position: absolute;
     top: 16px;
     left: 88%;
 }
+
 #myDialog header img:hover {
     filter: drop-shadow(0px 0px 4px #fff);
     cursor: pointer;
 }
-/* #myDialog section {
-    height: 400px;
-    width: 250px;
-    margin-bottom: 20px;
-} */
+
+#myDialog section {
+    display: flex;
+    flex-direction: column;
+}
+
 #myDialog #imgDialog {
     height: 120px;
+    margin-bottom: 16px;
 }
+
+#pokeDescript table {
+    display: flex;
+}
+
+#pokeDescript table tbody {
+    display: flex;
+    flex-direction: column;
+}
+
+#pokeDescript table tbody tr {
+    display: flex;
+    justify-content: space-between;
+    gap: 100px;
+}
+
 #myDialog footer {
     background: none;
     justify-content: space-between;
     align-items: center;
-    gap: 45px;
+    padding: 48px;
 }
-/* #myDialog footer #imgCounter {
-    width: 40px;
-    text-align: center;
-} */
+
 #myDialog footer img:hover {
     filter: drop-shadow(0px 0px 4px #FD5B4F);
     cursor: pointer;

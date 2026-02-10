@@ -15,9 +15,9 @@ async function fetchData(){
         const responseAsJson = await response.json();
         nextPokemonUrl = responseAsJson.next;
         
-        // console.log(nextPokemonUrl);
+        console.log(nextPokemonUrl);
         
-        // console.log(responseAsJson);
+        console.log(responseAsJson);
 
         const pokemonURL = [];
 
@@ -29,7 +29,7 @@ async function fetchData(){
             pokemonURL.push(urlData);
         }
 
-        // console.log(pokemonURL);
+        console.log(pokemonURL);
         renderPokemon(pokemonURL)
     } finally {
         hideLoadingScreen();
@@ -43,22 +43,58 @@ function openDialog(pokemonId) {
 
     dialogRef.showModal();
     renderDialog(pokemon);
-}
+};
 
 
 function closeDialog() {
     dialogRef.close();
-}
+};
 
 function renderDialog(pokemon) {
     const tagArray = getPokemonTags(pokemon);
+    const statsArray = getPokemonStats(pokemon);
+
+    console.log(tagArray);
+    console.log(statsArray);
+
+    const hp = `${statsArray[0]}`;
+    const attack = `${statsArray[1]}`;
+    const defense = `${statsArray[2]}`;
+    const specialAttack = `${statsArray[3]}`;
+    const specialDefense = `${statsArray[4]}`;
+    const speed = `${statsArray[5]}`;
 
     document.getElementById('dialogTitle').innerHTML = `#${pokemon.id} ${pokemonNameUpCase(pokemon)}`;
 
     document.getElementById('imgDialog').setAttribute('src', `${pokemon.sprites.other.dream_world.front_default}`);
-    
-    
-}
+    document.getElementById('pokeDescript').innerHTML = `
+    <table>
+        <tr>
+            <th>Hp:</th>
+            <td>${hp}</td>
+        </tr>
+        <tr>
+            <th>Attack:</th>
+            <td>${attack}</td>
+        </tr>
+        <tr>
+            <th>Defense:</th>
+            <td>${defense}</td>
+        </tr>
+        <tr>
+            <th>Special-Attack:</th>
+            <td>${specialAttack}</td>
+        </tr>
+        <tr>
+            <th>Special-Defense:</th>
+            <td>${specialDefense}</td>
+        </tr>
+        <tr>
+            <th>Speed:</th>
+            <td>${speed}</td>
+        </tr>
+    </table>` 
+};
 
 
 function renderPokemon(pokemonURL){
@@ -103,7 +139,7 @@ function pokemonNameUpCase(pokemon) {
 };
 
 function getPokemonTags(pokemon) {
-    let pokemonTypes = pokemon.types
+    let pokemonTypes = pokemon.types;
     let pokemonTags = [];
 
     // iterate through pokemonTypes to get type.name of pokemon
@@ -112,6 +148,17 @@ function getPokemonTags(pokemon) {
     })
 
     return pokemonTags;
+};
+
+function getPokemonStats(pokemon) {
+    let pokemonStats = pokemon.stats;
+    let pokemonStat = [];
+
+    pokemonStats.forEach ((pokemonStatsArray) => {
+        pokemonStat.push(pokemonStatsArray.base_stat)
+    })
+
+    return pokemonStat;
 };
 
 function getTagHtml(pokemonTagsArray) {
