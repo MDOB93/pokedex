@@ -191,9 +191,6 @@ async function fetchPokemon(pokemonName) {
     const contentRef = document.getElementById('content');
     const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonName}`);
     const responseAsJson = await response.json();
-
-    console.log(responseAsJson);
-
     const tagArray = getPokemonTags(responseAsJson)
     const mainType = tagArray[0];
     const typeClasses = `type-${mainType}`;
