@@ -197,7 +197,7 @@ dialog {
     border-radius: 40px;
     padding: 32px 16px 32px 16px;
     background: #161618;
-    height: 52%;
+    height: 65%;
     width: 320px;
     justify-content: center;
     align-items: center;
@@ -216,14 +216,16 @@ dialog[open] {
 }
 
 dialog main {
-    padding: 0;
-    top: 60px;
+    position: fixed;
+    padding: 16px;
+    top: 82px;
     height: auto;
     overflow-y: hidden;
+    background: #161618;
 }
 
 #myDialog header {
-    background: none;
+    background: #161618;
     padding: 0;
 }
 
@@ -267,11 +269,16 @@ dialog main {
     gap: 100px;
 }
 
+#pokeDescript #dialogTags {
+    margin-top: 16px;
+}
+
 #myDialog footer {
-    background: none;
+    background: #161618;
     justify-content: space-between;
     align-items: center;
     padding: 48px;
+    border-top: none;
 }
 
 #myDialog footer img:hover {

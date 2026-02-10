@@ -57,12 +57,17 @@ function renderDialog(pokemon) {
     console.log(tagArray);
     console.log(statsArray);
 
+    const mainType = tagArray[0];
+    const typeClasses = `type-${mainType}`;
+
     const hp = `${statsArray[0]}`;
     const attack = `${statsArray[1]}`;
     const defense = `${statsArray[2]}`;
     const specialAttack = `${statsArray[3]}`;
     const specialDefense = `${statsArray[4]}`;
     const speed = `${statsArray[5]}`;
+
+    document.getElementById('myDialog').classList = typeClasses
 
     document.getElementById('dialogTitle').innerHTML = `#${pokemon.id} ${pokemonNameUpCase(pokemon)}`;
 
@@ -93,7 +98,8 @@ function renderDialog(pokemon) {
             <th>Speed:</th>
             <td>${speed}</td>
         </tr>
-    </table>` 
+    </table>
+    <div id="dialogTags" class="tags">${getTagHtml(tagArray)}</div>`
 };
 
 
