@@ -6,6 +6,8 @@ let nextPokemonUrl = null;
 let allPokemon = [];
 let loaderTimer = null;
 
+const dialogRef = document.getElementById('myDialog');
+
 async function fetchData(){
     showLoadingScreen();
     try {
@@ -34,6 +36,31 @@ async function fetchData(){
     }
 };
 
+function openDialog(pokemonId) {
+    const pokemon = allPokemon.find(p => p.id === pokemonId);
+
+    if (!pokemon) return;
+
+    dialogRef.showModal();
+    renderDialog(pokemon);
+}
+
+
+function closeDialog() {
+    dialogRef.close();
+}
+
+function renderDialog(pokemon) {
+    const tagArray = getPokemonTags(pokemon);
+
+    document.getElementById('dialogTitle').innerHTML = `#${pokemon.id} ${pokemonNameUpCase(pokemon)}`;
+
+    document.getElementById('imgDialog').setAttribute('src', `${pokemon.sprites.other.dream_world.front_default}`);
+    
+    
+}
+
+
 function renderPokemon(pokemonURL){
     const contentRef = document.getElementById('content');
 
@@ -50,8 +77,8 @@ function renderPokemon(pokemonURL){
         const typeClasses = `type-${mainType}`;
         
         contentRef.innerHTML += `
-            <div class="card ${typeClasses}" style="max-width: 18rem;">
-                <div id="${pokemon.id}" class="card-header">#${pokemon.id}</div>
+            <div id="card-${pokemon.id}" class="card ${typeClasses}" onclick="openDialog(${pokemon.id})"style="max-width: 18rem;">
+                <div class="card-header">#${pokemon.id}</div>
                 <div class="card-body">
                     <h5 id="${pokemon.name}" class="card-title">${pokemonNameUpCase(pokemon)}</h5>
                     <div class="pokemonImgWraper">
