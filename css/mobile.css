@@ -13,10 +13,37 @@
         padding-left: calc((100% - 1440px) / 2);
         padding-right: calc((100% - 1440px) / 2);
     }
+    .errorMsg h2 {
+        font-size: 80px;
+    }
+    dialog {
+        height: 80vh !important;
+        width: 40vw !important;
+    }
+    #myDialog header img {
+        height: 45px;
+    }
+    #myDialog #imgDialog {
+        height: 480px !important;
+    }
+    #pokeDescript table {
+        justify-content: center;
+        font-size: 48px;
+    }
+    #myDialog footer {
+        justify-content: space-around !important;
+    }
 }
 
+
 @media (min-width: 320px) and (max-width: 768px) {
-    footer {
-        font-size: 8px;
+    footer p a {
+        display: none;
+    }
+}
+
+@media (min-width: 320px) and (max-width: 482px) {
+    main {
+        margin-top: 140px !important;
     }
 }

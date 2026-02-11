@@ -28,7 +28,7 @@ function pokemonFetchTemplate(responseAsJson, typeClasses, tagArray) {
 
 function errorTemplate() {
     return `
-    <div>
+    <div class="errorMsg">
         <h2>No Pokémon found<br>
         Error 404 ¯\\_(ツ)_/¯</h2>
     </div>`

@@ -29,7 +29,6 @@ body {
 }
 
 .loaderBg {
-    position: fixed;
     width: 100vw;
     height: 100vh;
     background: #161618;
@@ -39,7 +38,6 @@ body {
     flex-direction: column;
     gap: 16px;
     color: #fff;
-    z-index: 2;
 }
 
 .loader {
@@ -66,9 +64,7 @@ header {
 
 .navbar {
     padding: 16px 0 16px 0 !important;
-    margin-bottom: 32px;
     border-bottom: 1px solid #ee534f;
-    /* width: 100%; */
 }
 
 .bg-nav {
@@ -96,10 +92,11 @@ header {
 }
 
 main {
-    height: 70vh;
-    position: absolute;
-    top: 150px;
-    overflow-y: scroll;
+    height: calc(100vh - 219px);
+    margin-top: 120px;  
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
 }
 
 .infoCard {
@@ -185,7 +182,7 @@ footer {
     justify-content: center;
     align-items: center;
     gap: 20px;
-    padding: 20px;
+    padding: 20px !important;
     color: #fff;
     border-top: 1px solid #ee534f;
     padding: 16px 0 16px 0;
@@ -222,10 +219,11 @@ dialog[open] {
 dialog main {
     position: fixed;
     padding: 16px 24px;
-    top: 82px;
     height: auto;
+    width: 92%;
     overflow-y: hidden;
     background: #161618;
+    margin-top: 0 !important;
 }
 
 #myDialog header {
@@ -256,6 +254,7 @@ dialog main {
 #myDialog #imgDialog {
     height: 120px;
     margin-bottom: 16px;
+    aspect-ratio: 16 / 9;
 }
 
 #pokeDescript table {
