@@ -1,8 +1,3 @@
-function init(){
-    fetchData()
-    initDialogNavigation()
-};
-
 let nextPokemonUrl = null;
 let allPokemon = [];
 let loaderTimer = null;
@@ -11,24 +6,33 @@ let currentPokemonIndex = 0;
 
 const dialogRef = document.getElementById('myDialog');
 
+function init(){
+    fetchData()
+    initDialogNavigation()
+};
+
 async function fetchData(){
     showLoadingScreen();
     try {
         const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=25&offset=0');
         const responseAsJson = await response.json();
-        nextPokemonUrl = responseAsJson.next;
-        const pokemonURL = [];
-        // aweit only in async funtions (const pokemon = responseAsJson.results) | if you want to read the files in sequence, you cannot use forEach indeed. Just use a modern for … of loop instead, in which await will work as expected.
-        // https://stackoverflow.com/questions/37576685/using-async-await-with-a-foreach-loop
-        for (const pokemon of responseAsJson.results) {
-            const urlRef = await fetch(pokemon.url);
-            const urlData = await urlRef.json();
-            pokemonURL.push(urlData);
-        }
+        
+        const pokemonURL = await responseResulteLoope(responseAsJson);
         renderPokemon(pokemonURL)
     } finally {
         hideLoadingScreen();
     }
+};
+
+async function responseResulteLoope(responseAsJson) {
+    nextPokemonUrl = responseAsJson.next;
+    const pokemonURL = [];
+    for (const pokemon of responseAsJson.results) {
+            const urlRef = await fetch(pokemon.url);
+            const urlData = await urlRef.json();
+            pokemonURL.push(urlData);
+    }
+    return pokemonURL;
 };
 
 function openDialog(pokemonId) {
@@ -40,35 +44,44 @@ function openDialog(pokemonId) {
     renderDialog(currentRenderedPokemon[currentPokemonIndex]);
 };
 
-
 function closeDialog() {
     dialogRef.close();
 };
 
 function renderDialog(pokemon) {
     const tagArray = getPokemonTags(pokemon);
-    const statsArray = getPokemonStats(pokemon);
     const mainType = tagArray[0];
     const typeClasses = `type-${mainType}`;
-    const hp = `${statsArray[0]}`;
-    const attack = `${statsArray[1]}`;
-    const defense = `${statsArray[2]}`;
-    const specialAttack = `${statsArray[3]}`;
-    const specialDefense = `${statsArray[4]}`;
-    const speed = `${statsArray[5]}`;
+
+    const stats = pokemonStatsTable(pokemon);
 
     document.getElementById('myDialog').classList = typeClasses
     document.getElementById('dialogTitle').innerHTML = `#${pokemon.id} ${pokemonNameUpCase(pokemon)}`;
     document.getElementById('imgDialog').setAttribute('src', `${pokemon.sprites.other.dream_world.front_default}`);
-    document.getElementById('pokeDescript').innerHTML = dialogTbleTemplate(hp, attack, defense, specialAttack, specialDefense, speed, tagArray);
+    document.getElementById('pokeDescript').innerHTML = dialogTbleTemplate(stats, tagArray);
+};
+
+function pokemonStatsTable(pokemon) {
+    const statsArray = getPokemonStats(pokemon);
+    const statNames = [
+        "hp",
+        "attack",
+        "defense",
+        "specialAttack",
+        "specialDefense",
+        "speed"
+    ];
+    const stats = {};
+    statsArray.forEach((stat, index) => {
+        stats[statNames[index]] = stat;
+    });
+    return stats;
 };
 
 
 function renderPokemon(pokemonURL){
     const contentRef = document.getElementById('content');
-
-    currentRenderedPokemon.push(...pokemonURL);// ... Spread-Operator | It „spreads“ an array – turns many values into individual elements.
-
+    currentRenderedPokemon.push(...pokemonURL);
     pokemonURL.forEach((pokemon) => {
         allPokemon.push(pokemon)       
         const tagArray = getPokemonTags(pokemon)
@@ -81,8 +94,6 @@ function renderPokemon(pokemonURL){
 
 function pokemonNameUpCase(pokemon) {
     const PokemonName = pokemon.name
-    // cahrAt(0) get the first letter of PokemonName than make it toUpperCase()
-    // PokemonName.slice(1) get the rest of the word
     const nameUpCase = PokemonName.charAt(0).toUpperCase() + PokemonName.slice(1);
     return nameUpCase;
 };
@@ -90,7 +101,6 @@ function pokemonNameUpCase(pokemon) {
 function getPokemonTags(pokemon) {
     let pokemonTypes = pokemon.types;
     let pokemonTags = [];
-    // iterate through pokemonTypes to get type.name of pokemon
     pokemonTypes.forEach ((pokemonTagsArray) => {
         pokemonTags.push(pokemonTagsArray.type.name)
     })
@@ -108,27 +118,19 @@ function getPokemonStats(pokemon) {
 
 function getTagHtml(pokemonTagsArray) {
     let typeHtml = "";
-    // iterate through pokemonTagsArray and save it in html as <span>
     pokemonTagsArray.forEach((tag) => {
         typeHtml += `<span class="tagFrame type-${tag}">${tag}</span>`;
     })
     return typeHtml;
 };
 
-async function loadNextPokemon() {
-    
+async function loadNextPokemon() {  
     if (!nextPokemonUrl) return;
     showLoadingScreen();
     try {
         const response = await fetch(nextPokemonUrl);
         const responseAsJson = await response.json();       
-        nextPokemonUrl = responseAsJson.next;
-        const pokemonURL = [];
-        for (const pokemon of responseAsJson.results) {
-            const urlRef = await fetch(pokemon.url);
-            const urlData = await urlRef.json();
-            pokemonURL.push(urlData);
-        }
+        const pokemonURL = await responseResulteLoope(responseAsJson);
         renderPokemon(pokemonURL)
     } finally {
         hideLoadingScreen();
@@ -138,52 +140,60 @@ async function loadNextPokemon() {
 async function searchPokemon() {
     showLoadingScreen();
     try {
-        const inputRef = document.getElementById('searchInput');
-        const searchValue = inputRef.value.toLowerCase().trim();
-        const contentRef = document.getElementById('content');
-
-        if (searchValue === '' || searchValue.length < 3) {
-            document.getElementById('nextPokemonBtn').disabled = false;
-            showHideBtn();
+        const searchValue = getSearchValue();    
+        if (!isSearchValid(searchValue)) {
+            activateNextButton();
             return;
         }
-
-        let filteredPokemon = allPokemon.filter((pokemon) =>
-            pokemon.name.includes(searchValue)
-        );
-
+        const filteredPokemon = filterPokemonByName(searchValue);
         if (filteredPokemon.length >= 3) {
-            contentRef.innerHTML = '';
-
-            currentRenderedPokemon = filteredPokemon;
-            currentPokemonIndex = 0;
-
-            for (const pokemon of filteredPokemon) {
-                const tagArray = getPokemonTags(pokemon);
-                const mainType = tagArray[0];
-                const typeClasses = `type-${mainType}`;
-
-                contentRef.innerHTML += pokemonCardTemplate(pokemon, typeClasses, tagArray);
-            }
-
-            document.getElementById('nextPokemonBtn').disabled = true;
-            showHideBtn();
+            renderSearchResults(filteredPokemon);
+            deactivateNextButton();
             return;
         }
-
-        try {
-            await fetchPokemon(searchValue);
-            document.getElementById('nextPokemonBtn').disabled = true;
-            showHideBtn();
-        } catch (error) {
-            contentRef.innerHTML = errorTemplate();
-            document.getElementById('nextPokemonBtn').disabled = true;
-            showHideBtn();
-            return;
-        }
-        inputRef.value = '';
+        await tryFetchSinglePokemon(searchValue);
+        clearSearchInput();
     } finally {
         hideLoadingScreen();
+    }
+};
+
+function getSearchValue() {
+    const inputRef = document.getElementById('searchInput');
+    return inputRef.value.toLowerCase().trim();
+};
+
+function isSearchValid(searchValue) {
+    return searchValue !== '' && searchValue.length >= 3;
+};
+
+function filterPokemonByName(searchValue) {
+    return allPokemon.filter(pokemon =>
+        pokemon.name.includes(searchValue)
+    );
+};
+
+function renderSearchResults(filteredPokemon) {
+    const contentRef = document.getElementById('content');
+    contentRef.innerHTML = '';
+    currentRenderedPokemon = filteredPokemon;
+    currentPokemonIndex = 0;
+    filteredPokemon.forEach(pokemon => {
+        const tagArray = getPokemonTags(pokemon);
+        const mainType = tagArray[0];
+        const typeClasses = `type-${mainType}`;
+        contentRef.innerHTML += pokemonCardTemplate(pokemon, typeClasses, tagArray);
+    });
+};
+
+async function tryFetchSinglePokemon(searchValue) {
+    const contentRef = document.getElementById('content');
+    try {
+        await fetchPokemon(searchValue);
+        deactivateNextButton();
+    } catch (error) {
+        contentRef.innerHTML = errorTemplate();
+        deactivateNextButton();
     }
 };
 
@@ -194,15 +204,25 @@ async function fetchPokemon(pokemonName) {
     const tagArray = getPokemonTags(responseAsJson)
     const mainType = tagArray[0];
     const typeClasses = `type-${mainType}`;
-
     contentRef.innerHTML = '';
-
     currentRenderedPokemon = [responseAsJson];
-    currentPokemonIndex = 0;
-                
+    currentPokemonIndex = 0;             
     contentRef.innerHTML += pokemonFetchTemplate(responseAsJson, typeClasses, tagArray);
-
     showHideBtn ()
+};
+
+function deactivateNextButton() {
+    document.getElementById('nextPokemonBtn').disabled = true;
+    showHideBtn();
+};
+
+function activateNextButton() {
+    document.getElementById('nextPokemonBtn').disabled = false;
+    showHideBtn();
+};
+
+function clearSearchInput() {
+    document.getElementById('searchInput').value = '';
 };
 
 function showHideBtn() {
@@ -235,20 +255,16 @@ function initDialogNavigation() {
 
 function showNextPokemon() {
     currentPokemonIndex++;
-
     if (currentPokemonIndex >= currentRenderedPokemon.length) {
         currentPokemonIndex = 0;
     }
-
     renderDialog(currentRenderedPokemon[currentPokemonIndex]);
 };
 
 function showPrevPokemon() {
     currentPokemonIndex--;
-
     if (currentPokemonIndex < 0) {
         currentPokemonIndex = currentRenderedPokemon.length - 1;
     }
-
     renderDialog(currentRenderedPokemon[currentPokemonIndex]);
 };

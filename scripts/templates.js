@@ -34,32 +34,32 @@ function errorTemplate() {
     </div>`
 };
 
-function dialogTbleTemplate(hp, attack, defense, specialAttack, specialDefense, speed, tagArray) {
+function dialogTbleTemplate(stats, tagArray) {
     return `
     <table>
         <tr>
             <th>Hp:</th>
-            <td>${hp}</td>
+            <td>${stats.hp}</td>
         </tr>
         <tr>
             <th>Attack:</th>
-            <td>${attack}</td>
+            <td>${stats.attack}</td>
         </tr>
         <tr>
             <th>Defense:</th>
-            <td>${defense}</td>
+            <td>${stats.defense}</td>
         </tr>
         <tr>
             <th>Special-Attack:</th>
-            <td>${specialAttack}</td>
+            <td>${stats.specialAttack}</td>
         </tr>
         <tr>
             <th>Special-Defense:</th>
-            <td>${specialDefense}</td>
+            <td>${stats.specialDefense}</td>
         </tr>
         <tr>
             <th>Speed:</th>
-            <td>${speed}</td>
+            <td>${stats.speed}</td>
         </tr>
     </table>
     <div id="dialogTags" class="tags">${getTagHtml(tagArray)}</div>`
