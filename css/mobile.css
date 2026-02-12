@@ -1,4 +1,10 @@
 @media (min-width: 1441px) {
+    .max1440l {
+        padding-left: calc((100% - 1440px) / 2);
+    }
+    .max1440r {
+        padding-right: calc((100% - 1440px) / 2);
+    }
     .max1440 {
         padding-left: calc((100% - 1440px) / 2);
         padding-right: calc((100% - 1440px) / 2);
